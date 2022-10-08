@@ -63,7 +63,7 @@ def send():
         else:
             db =    get_db()
             db.execute(
-                'INSERT INTO message (from_id, to_id, subject, body) VALUES (?, ?, ?, ?)', #preguntar
+                'INSERT INTO message (from_id, to_id, subject, body) VALUES (?, ?, ?, ?)', 
                 (g.user['id'], userto['id'], subject, body)
             )
             db.commit()

@@ -157,19 +157,19 @@ def confirm():
                 flash(error)
                 return render_template('auth/change.html', number=authid)
 
-            db =  get_db() if not g.db else g.dbc
+            db =  get_db() 
             attempt = db.execute(
-                "SELECT id=? FROM user", (authid, utils.F_ACTIVE) 
+                "SELECT * FROM forgotlink WHERE challenge = ? AND state =?", (authid, utils.F_ACTIVE) 
             ).fetchone()
             
             if attempt is not None:
                 db.execute(
-                    "UPDATE user SET password = 'password' WHERE id= ?;", (utils.F_INACTIVE, attempt['id']) #preguntar
+                    "UPDATE forgotlink SET state = ? WHERE id = ?;", (utils.F_INACTIVE, attempt['id']) #preguntar
                 )
                 salt = hex(random.getrandbits(128))[2:]
                 hashP = generate_password_hash(password + salt)   
                 db.execute(
-                    "INSERT INTO forgotlink (challenge, state, userid) VALUES (?, ?, ?);", (hashP, salt, attempt['userid']) #preguntar
+                    "UPDATE user SET password = ?, salt = ? WHERE id = ?", (hashP, salt, attempt['userid']) #preguntar
                 )
                 db.commit()
                 return redirect(url_for('auth.login'))
@@ -177,7 +177,7 @@ def confirm():
                 flash('Invalid')
                 return render_template('auth/forgot.html')
 
-        return render_template('auth.login') #preguntar
+        return render_template('auth/forgot.html') 
     except:
         return render_template('auth/forgot.html')
 
@@ -188,7 +188,7 @@ def change():
         if g.user:
             return redirect(url_for('inbox.show'))
         
-        if request.method == 'POST': 
+        if request.method == 'GET': 
             number = request.args['auth'] 
             
             db = get_db()
@@ -227,12 +227,12 @@ def forgot():
                 number = hex(random.getrandbits(512))[2:]
                 
                 db.execute(
-                    'UPDATE forgotlink SET state = ? WHERE userid = ? AND state = ?', #preguntar
-                    (utils.F_INACTIVE, user['id'], )
+                    'UPDATE forgotlink SET state = ? WHERE userid = ? AND state = ?', 
+                    (utils.F_INACTIVE, user['id'], utils.F_ACTIVE)
                 )
                 db.execute(
                     'INSERT INTO forgotlink (id, userid, challenge, state) VALUES (NULL, ?, ?, ?)',
-                    (user['id'], number, utils.F_ACTIVE) #preguntar
+                    (user['id'], number, utils.F_ACTIVE) 
                 )
                 db.commit()
                 
@@ -251,7 +251,7 @@ def forgot():
 
         return render_template('auth/forgot.html')
     except:
-        return render_template('auth/login.html') #preguntar
+        return render_template('auth/forgot.html') 
 
 
 @bp.route('/login', methods= ('GET', 'POST'))
