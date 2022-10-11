@@ -52,4 +52,4 @@ CREATE TABLE credentials(
   password TEXT NOT NULL
 );
 
-INSERT INTO credentials (name,user,password) VALUES ('EMAIL_APP','equipo7misiontic@outlook.com', 'Equipo72022');
+INSERT INTO credentials (name,user,password) VALUES ('EMAIL_APP','spring3equipo7@outlook.com', 'Equipo7+2022');
